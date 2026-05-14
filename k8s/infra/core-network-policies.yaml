@@ -30,7 +30,7 @@ spec:
   policyTypes:
     - Ingress
   ingress:
-    # Allow traffic FROM the lovable-previews namespace
+    # Allow traffic FROM the coding-genie-previews namespace
     - from:
         - namespaceSelector:
             matchLabels:
