@@ -1,0 +1,2 @@
+com.nod.backend.distributed_coding_genie.common_lib.security.SharedSecurityAutoConfiguration
+com.nod.backend.distributed_coding_genie.common_lib.error.SharedExceptionAutoConfiguration

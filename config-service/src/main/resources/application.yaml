@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: config-service
+  
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/NIKHIL12072000/coding-genie-config-server
+          username: NIKHIL12072000
+          password: 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
+          default-label: main
+
+server.port: 8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    config:
+      enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+  cloud:
+    discovery:
+      enabled: false
+    config.server.git:
+      uri: https://github.com/NIKHIL12072000/coding-genie-config-server
+      username: ${GIT_USERNAME}
+      password: ${GIT_PASSWORD}
+      default-label: main
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false

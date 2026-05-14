@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coding-genie-frontend
+  namespace: coding-genie
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coding-genie-frontend
+  template:
+    metadata:
+      labels:
+        app: coding-genie-frontend
+    spec:
+      containers:
+        - name: coding-genie-frontend
+          image: 12072000/coding-genie-frontend@sha256:a0d828b8a5382582c53e5f361705e32d595772b3dfb83e6e5d262d2db0f4e45f
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coding-genie-frontend
+  namespace: coding-genie
+spec:
+  type: ClusterIP
+  selector:
+    app: coding-genie-frontend
+  ports:
+    - port: 80
+      targetPort: 80
