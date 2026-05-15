@@ -20,7 +20,7 @@ public class CorsConfig {
                 "http://www.codinggenie.in",
                 "http://api.codinggenie.in",
                 "http://localhost:5173"
-        )); //Added domains for cors
+        )); 
         corsConfig.setMaxAge(3600L);
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfig.setAllowedHeaders(List.of("*"));
