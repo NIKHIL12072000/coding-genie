@@ -124,6 +124,7 @@
 			<artifactId>spring-boot-starter-validation-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- JJWT -->
 		<dependency>
         	<groupId>io.jsonwebtoken</groupId>
         	<artifactId>jjwt-api</artifactId>
