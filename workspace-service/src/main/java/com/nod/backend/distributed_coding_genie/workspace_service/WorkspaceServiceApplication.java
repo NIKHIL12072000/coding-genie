@@ -10,6 +10,9 @@ public class WorkspaceServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WorkspaceServiceApplication.class, args);
+		/*
+		1. Changed common-lib imports in security config
+		*/
 	}
 
 }
