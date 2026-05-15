@@ -9,6 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.context.annotation.ComponentScan;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 @AutoConfiguration
 @EnableConfigurationProperties
@@ -29,10 +32,13 @@ public class SharedSecurityAutoConfiguration {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication != null && authentication.getCredentials() instanceof String token) {
-                requestTemplate.header("Authorization", "Bearer " + token);
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                String authorizationHeader = request.getHeader("Authorization");
+                if (authorizationHeader != null) {
+                    requestTemplate.header("Authorization", authorizationHeader);
+                }
             }
         };
     }
