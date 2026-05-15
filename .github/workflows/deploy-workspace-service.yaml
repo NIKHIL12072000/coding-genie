@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'worskspace-service/**'
+      - 'workspace-service/**'
 
 env:
-  SERVICE_NAME: worskspace-service
-  IMAGE_NAME: 12072000/coding-genie-worskspace-service
+  SERVICE_NAME: workspace-service
+  IMAGE_NAME: 12072000/coding-genie-workspace-service
 
 permissions:
   id-token: write
