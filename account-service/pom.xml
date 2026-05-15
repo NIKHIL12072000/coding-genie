@@ -121,6 +121,7 @@
             <artifactId>common-lib</artifactId>
             <version>1.0.0</version>
         </dependency>
+		<!--jjwt dependencies-->
 		<dependency>
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt-api</artifactId>
