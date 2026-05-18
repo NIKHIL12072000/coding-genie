@@ -36,6 +36,18 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService {
                 () -> new ResourceNotFoundException("Project", projectId.toString()));
 
         try {
+            boolean starterBucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(TEMPLATE_BUCKET).build());
+            if (!starterBucketExists) {
+                log.error("Starter projects bucket '{}' does not exist", TEMPLATE_BUCKET);
+                throw new RuntimeException("Template storage not initialized");
+            }
+
+            boolean targetBucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(TARGET_BUCKET).build());
+            if (!targetBucketExists) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(TARGET_BUCKET).build());
+                log.info("Created target bucket '{}'", TARGET_BUCKET);
+            }
+
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder()
                             .bucket(TEMPLATE_BUCKET)
@@ -44,10 +56,15 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService {
                             .build()
             );
 
-            List<ProjectFile> filesToSave = new ArrayList<>(); // for metadata in postgres db
+            List<ProjectFile> filesToSave = new ArrayList<>();
 
+            boolean filesFound = false;
             for (Result<Item> result : results) {
                 Item item = result.get();
+                if (item.isDir() || item.objectName().endsWith("/")) {
+                    continue;
+                }
+                filesFound = true;
                 String sourceKey = item.objectName();
 
                 String cleanPath = sourceKey.replaceFirst(TEMPLATE_NAME + "/", "");
@@ -77,10 +94,17 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService {
                 filesToSave.add(pf);
             }
 
+            if (!filesFound) {
+                log.error("No template files found for template '{}' in bucket '{}'", TEMPLATE_NAME, TEMPLATE_BUCKET);
+                throw new RuntimeException("Template files not found");
+            }
+
             projectFileRepository.saveAll(filesToSave);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize project from template", e);
+            log.error("Project initialization failed for project {}: {}", projectId, e.getMessage(), e);
+            String msg = e.getMessage() != null && !e.getMessage().isEmpty() ? ": " + e.getMessage() : "";
+            throw new RuntimeException("Failed to initialize project from template" + msg, e);
         }
 
     }
