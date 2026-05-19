@@ -55,7 +55,6 @@ public class AiGenerationServiceImpl implements AiGenerationService {
 
 
     @Override
-    @PreAuthorize("@security.canEditProject(#projectId)")
     public Flux<StreamResponse> streamResponse(String userMessage, Long projectId) {
 
 //        usageService.checkDailyTokensUsage();

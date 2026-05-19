@@ -19,7 +19,17 @@ public class SecurityExpressions {
 
     private boolean hasPermission(Long projectId, ProjectPermission projectPermission) {
         try {
-            return workspaceClient.checkPermission(projectId, projectPermission);
+            org.springframework.web.context.request.RequestAttributes attributes = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+            log.info("[DEBUG] RequestAttributes present: {}", attributes != null);
+            if (attributes instanceof org.springframework.web.context.request.ServletRequestAttributes servletAttributes) {
+                jakarta.servlet.http.HttpServletRequest request = servletAttributes.getRequest();
+                log.info("[DEBUG] Authorization header: {}", request.getHeader("Authorization"));
+            }
+            log.info("[DEBUG] Current Authentication: {}", org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
+            
+            boolean result = workspaceClient.checkPermission(projectId, projectPermission);
+            log.info("[DEBUG] checkPermission result: {}", result);
+            return result;
         } catch (FeignException.Unauthorized e) {
             log.warn("Token expired or invalid during permission check for project: {}", projectId);
             throw new CredentialsExpiredException("JWT token is expired or invalid");
