@@ -77,16 +77,18 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: WORKSPACE_DB_PASSWORD
-            - name: MINIO_ROOT_USER
+            - name: MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: app-secrets
                   key: MINIO_ROOT_USER
-            - name: MINIO_ROOT_PASSWORD
+            - name: MINIO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: app-secrets
                   key: MINIO_ROOT_PASSWORD
+            - name: MINIO_URL
+              value: http://minio.coding-genie.svc.cluster.local:9000
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
