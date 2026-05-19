@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-@RequestMapping("/internal/v1/")
+@RequestMapping("/internal/v1")
 @RestController
 public class InternalWorkspaceController {
 
