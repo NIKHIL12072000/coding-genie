@@ -95,7 +95,9 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                         if(response.getMetadata().getUsage() != null) {
                             usageRef.set(response.getMetadata().getUsage());
                         }
-                        fullResponseBuffer.append(content);
+                        if (content != null) {
+                            fullResponseBuffer.append(content);
+                        }
                     }
 
                 })
@@ -111,6 +113,9 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 .map(response -> {
                     if (response.getResults() != null && !response.getResults().isEmpty()) {
                         String text = response.getResult().getOutput().getText();
+                        if (text != null && !text.isEmpty()) {
+                            log.info("STREAM CHUNK EMITTED: {}", text);
+                        }
                         return new StreamResponse(text != null ? text : "");
                     }
                     return new StreamResponse("");
@@ -119,6 +124,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
 
     private void finalizeChats(String userMessage, ChatSession chatSession, String fullText, Long duration, Usage usage, Long userId) {
         Long projectId = chatSession.getId().getProjectId();
+        log.info("RAW LLM RESPONSE GENERATED: \n{}", fullText);
 
         if(usage != null) {
             int totalTokens = usage.getTotalTokens();
