@@ -3,7 +3,6 @@ package com.nod.backend.distributed_coding_genie.workspace_service.service.impl;
 import com.nod.backend.distributed_coding_genie.common_lib.dto.FileNode;
 import com.nod.backend.distributed_coding_genie.common_lib.dto.FileTreeDto;
 import com.nod.backend.distributed_coding_genie.common_lib.error.ResourceNotFoundException;
-import com.nod.backend.distributed_coding_genie.workspace_service.dto.project.FileContentResponse;
 import com.nod.backend.distributed_coding_genie.workspace_service.entity.Project;
 import com.nod.backend.distributed_coding_genie.workspace_service.entity.ProjectFile;
 import com.nod.backend.distributed_coding_genie.workspace_service.mapper.ProjectFileMapper;
