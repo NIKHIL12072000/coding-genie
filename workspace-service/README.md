@@ -2,7 +2,7 @@
 
 > Core workspace orchestration service of Coding Genie responsible for project lifecycle management, Kubernetes preview environment provisioning, workspace persistence, and distributed workflow coordination.
 
-![Workspace Service Architecture](./workspace_service_hld.png)
+![Workspace Service Architecture](./workspace_service_hld)
 
 ---
 
