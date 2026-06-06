@@ -1,377 +1,189 @@
-![Alt text](./GKE_Architecture.png "GKE Architecture")
+# 🚀 Coding Genie
 
+> An AI-powered cloud development platform that enables users to generate, edit, preview, and manage full-stack applications in isolated Kubernetes-powered workspaces.
 
-
-# 1. High-Level GKE Architecture
-
-```text
-                           INTERNET
-                               |
-                               |
-                    codinggenie.in DNS
-                               |
-                               v
-                    NGINX Ingress Controller
-                               |
-      --------------------------------------------------
-      |                     |                         |
-      |                     |                         |
-      v                     v                         v
-
- codinggenie.in       api.codinggenie.in    *.previews.codinggenie.in
-
-      |                     |                         |
-      v                     v                         v
-
-Frontend Service      API Gateway           Coding Genie Proxy
-      |                     |                         |
-      |                     |                         |
-      |              -----------------               |
-      |              |       |       |               |
-      |              v       v       v               |
-      |         Account  Workspace  Intelligence     |
-      |         Service   Service    Service         |
-      |              |       |       |               |
-      |              -----------------               |
-      |                      |                       |
-      |                      v                       |
-      |                Config Service               |
-      |                                              |
-      ------------------------------------------------
-                             |
-      ------------------------------------------------
-      |            |             |                   |
-      v            v             v                   v
-
-   Redis        Kafka       PGVector             MinIO
-```
+![Coding Genie Architecture](./coding_genie_full_hld)
 
 ---
 
-# 2. Namespace Layout
+## 📖 Overview
 
-You have separated workloads into two namespaces:
+Coding Genie is a distributed, cloud-native AI coding platform inspired by tools such as Lovable, Replit, and Bolt. It combines AI-assisted code generation, microservices architecture, Kubernetes-based sandbox environments, and real-time preview deployments into a unified developer experience.
 
-```text
-GKE Cluster
-|
-├── coding-genie
-│    ├── Frontend
-│    ├── API Gateway
-│    ├── Account Service
-│    ├── Workspace Service
-│    ├── Intelligence Service
-│    ├── Config Service
-│    ├── Redis
-│    ├── Kafka
-│    ├── PGVector
-│    ├── MinIO
-│    └── Proxy
-│
-└── coding-genie-previews
-     ├── Runner Pool
-     ├── Dynamic Preview Pods
-     └── Sandbox Policies
-```
+Users can create projects using natural language, collaborate through isolated workspaces, generate and modify code using AI, and instantly preview applications running in dedicated Kubernetes environments.
 
 ---
 
-# 3. Request Flow (Main Application)
+## ✨ Key Features
+
+### 🤖 AI-Powered Development
+- Generate applications using natural language prompts.
+- AI-assisted code modifications and enhancements.
+- Intelligent project scaffolding and code generation.
+- Vector-search powered context retrieval using PGVector.
+
+### 🏗️ Distributed Microservices Architecture
+- API Gateway for centralized routing and security.
+- Workspace Service for project and environment lifecycle management.
+- Account Service for user management and authentication.
+- Intelligence Service for AI orchestration and retrieval workflows.
+- Config Server for centralized configuration management.
+
+### ☁️ Kubernetes-Native Infrastructure
+- Runs on Google Kubernetes Engine (GKE).
+- Namespace-based workload isolation.
+- Dynamic preview environment provisioning.
+- Network policies for sandbox security.
+- Scalable and production-ready deployment model.
+
+### ⚡ Real-Time Preview Environments
+- Dedicated preview pods created per workspace.
+- Wildcard subdomain routing for previews.
+- Redis-backed dynamic route discovery.
+- Automatic traffic routing through a custom preview proxy.
+
+### 📦 Modern Cloud Stack
+- Kafka for event-driven communication.
+- Redis for caching and preview routing.
+- MinIO for object storage.
+- PGVector for AI embeddings and semantic search.
+- NGINX Ingress for external traffic management.
+
+---
+
+## 🏛️ High-Level Architecture
+
+### Request Flow
 
 ```text
 User
- |
- v
-https://codinggenie.in
- |
- v
-Ingress
- |
- v
-Frontend Service
- |
- v
+  │
+  ▼
+Frontend (React)
+  │
+  ▼
 API Gateway
- |
- +-----------------------------+
- |                             |
- v                             v
-
-Account Service        Workspace Service
-                              |
-                              |
-                              v
-
-                       Intelligence Service
-
+  │
+  ├────────► Account Service
+  │
+  ├────────► Workspace Service
+  │                │
+  │                ├── Redis
+  │                ├── Kafka
+  │                └── Kubernetes API
+  │
+  └────────► Intelligence Service
+                   │
+                   ├── PGVector
+                   ├── MinIO
+                   └── AI Models
 ```
-
-The API Gateway acts as the single entry point for backend APIs.
 
 ---
 
-# 4. Preview Environment Flow 
-
-
-## Step 1
-
-User creates a project.
+## 🔥 Preview Environment Architecture
 
 ```text
 User
- |
- v
-Workspace Service
-```
-
----
-
-## Step 2
-
-Workspace Service creates preview resources.
-
-Because it has:
-
-* ServiceAccount
-* Role
-* RoleBinding
-
-it can manage resources inside:
-
-```text
-coding-genie-previews
-```
-
-namespace.
-
----
-
-## Step 3
-
-Runner Pool launches preview containers.
-
-```text
-Workspace Service
-         |
-         v
-   Runner Pool
-         |
-         v
- Preview Pod
-```
-
----
-
-## Step 4
-
-Preview gets a URL.
-
-Example:
-
-```text
+ │
+ ▼
 preview-123.previews.codinggenie.in
-```
-
----
-
-## Step 5
-
-Workspace Service stores mapping in Redis.
-
-```text
-preview-123.previews.codinggenie.in
-                |
-                v
-
-route:preview-123.previews.codinggenie.in
-                |
-                v
-
-preview-123-svc:5173
-```
-
----
-
-## Step 6
-
-Wildcard Proxy routes traffic.
-
-From your uploaded proxy source:
-
-* Reads hostname
-* Looks up Redis
-* Finds target preview service
-* Proxies HTTP/WebSocket traffic
-
-
-
-```text
-User
- |
- v
-preview-123.previews.codinggenie.in
- |
- v
-Ingress
- |
- v
-Coding Genie Proxy
- |
- v
-Redis Lookup
- |
- v
+ │
+ ▼
+NGINX Ingress
+ │
+ ▼
+Wildcard Preview Proxy
+ │
+ ▼
+Redis Route Lookup
+ │
+ ▼
 Preview Service
- |
- v
+ │
+ ▼
 Preview Pod
 ```
 
----
-
-# 5. Preview Routing Architecture
-
-```text
-                      *.previews.codinggenie.in
-                                   |
-                                   v
-                              Ingress
-                                   |
-                                   v
-                        Coding Genie Proxy
-                                   |
-                      Redis Route Lookup
-                                   |
-             ----------------------------------
-             |                |               |
-             v                v               v
-
-     preview-1-svc    preview-2-svc   preview-3-svc
-             |                |               |
-             v                v               v
-
-         Preview Pod      Preview Pod     Preview Pod
-```
+Each workspace receives an isolated preview environment running inside a dedicated Kubernetes namespace with strict network policies.
 
 ---
 
-# 6. Data Layer
+## 🧩 System Components
 
-```text
-                    Backend Services
-                           |
-      ------------------------------------------------
-      |                 |                |           |
-      v                 v                v           v
-
-    Redis            Kafka          PGVector      MinIO
-      |                 |                |           |
-      |                 |                |           |
- Preview Routes     Events        AI Embeddings   Files
- Session Data      Messaging      Vector Search   Uploads
-```
-
-### Redis
-
-Used for:
-
-* Preview URL mapping
-* Fast lookups
-
-### Kafka
-
-Used for:
-
-* Async communication
-* Event-driven workflows
-
-### PGVector
-
-Used for:
-
-* Embeddings
-* RAG
-* Semantic search
-
-### MinIO
-
-Used for:
-
-* Generated code
-* Assets
-* Project storage
+| Component | Responsibility |
+|------------|---------------|
+| Frontend | User Interface and Workspace Experience |
+| API Gateway | Routing, Authentication, Request Management |
+| Account Service | User Accounts, Authentication, Authorization |
+| Workspace Service | Workspace and Preview Lifecycle |
+| Intelligence Service | AI Workflows, Code Generation, Retrieval |
+| Config Server | Centralized Configuration |
+| Redis | Routing Cache, Fast Lookups |
+| Kafka | Event Streaming |
+| PGVector | Vector Embeddings & Semantic Search |
+| MinIO | Object Storage |
+| GKE | Container Orchestration |
+| NGINX Ingress | Traffic Routing |
 
 ---
 
-# 7. Security Architecture
+## 🔐 Security
 
-Implemented security in two layers.
-
-## Network Policies
-
-```text
-Production Namespace
-       |
-       +---- allow internal traffic
-       |
-       +---- allow ingress traffic
-       |
-       +---- allow preview access to MinIO
-```
+- Namespace-level isolation
+- Kubernetes Network Policies
+- Service Account based access control
+- JWT Authentication
+- Preview sandbox restrictions
+- Internal service-to-service communication controls
 
 ---
 
-## Sandbox Isolation
+## 🚀 Technology Stack
 
-```text
-coding-genie-previews
-         |
-         v
-strict-preview-sandbox
-```
+### Backend
+- Java 21
+- Spring Boot
+- Spring Cloud Gateway
+- Spring Cloud Config
+- Eureka Service Discovery
+- Kafka
+- Redis
 
-Preview containers cannot freely communicate with the rest of the cluster.
+### Frontend
+- React
+- TypeScript
+- Vite
 
-This is exactly what should happen in an AI code-generation platform.
+### Infrastructure
+- Google Kubernetes Engine (GKE)
+- NGINX Ingress
+- Docker
+- Kubernetes
+- GitHub Actions
+
+### Storage & AI
+- PGVector
+- MinIO
+- Redis
+- Kafka
+
+---
+
+## 🎯 Vision
+
+Coding Genie aims to provide a complete AI-native development experience where developers can:
+
+- Describe applications using natural language.
+- Generate production-ready code.
+- Instantly preview applications.
+- Iterate with AI assistance.
+- Deploy cloud-native applications seamlessly.
 
 ---
 
-# 8. What Happens When User Clicks "Preview"
+## 👨‍💻 Author
 
-```text
-User clicks Preview
-         |
-         v
-Workspace Service
-         |
-         v
-Creates Preview Pod
-         |
-         v
-Creates Preview Service
-         |
-         v
-Stores Route in Redis
-         |
-         v
-Returns URL
+**Nikhil Dachepally**
 
-preview-123.previews.codinggenie.in
-         |
-         v
-User Opens URL
-         |
-         v
-Ingress
-         |
-         v
-Proxy
-         |
-         v
-Redis Lookup
-         |
-         v
-Preview Pod
-```
-
----
+Building next-generation AI-powered developer tooling with cloud-native architecture and intelligent automation.
