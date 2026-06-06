@@ -1,1 +1,1 @@
-![Alt text](./GKE Architecture.png "GKE Architecture")
+![Alt text](./GKE_Architecture.png "GKE Architecture")
