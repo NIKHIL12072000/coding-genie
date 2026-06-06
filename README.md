@@ -1,10 +1,11 @@
 # 🚀 Coding Genie    
 
 > An AI-powered cloud development platform that enables users to generate, edit, preview, and manage full-stack applications in isolated Kubernetes-powered workspaces.
+[Coding Genie](http://codinggenie.in/)
 
 ![Coding Genie Architecture](./coding_genie_full_hld)
 
-[Coding Genie](http://codinggenie.in/)
+
 
 ---
 
