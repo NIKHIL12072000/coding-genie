@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>com.nod.backend.distributed_coding_genie</groupId>
 			<artifactId>common-lib</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
