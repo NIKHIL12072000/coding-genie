@@ -24,13 +24,13 @@ public class KubernetesDeploymentServiceImpl implements DeploymentService {
     private final KubernetesClient client;
     private final StringRedisTemplate redisTemplate;
 
-    @Value("${app.preview.namespace}")
+    @Value("${APP_PREVIEW_NAMESPACE}")
     private String namespace;
 
-    @Value("${app.preview.domain}")
+    @Value("${APP_PREVIEW_DOMAIN}")
     private String baseDomain;
 
-    @Value("${app.preview.proxy-port}")
+    @Value("${APP_PROXY_PORT}")
     private String proxyPort;
 
     private static final String POOL_LABEL = "status";
@@ -39,7 +39,7 @@ public class KubernetesDeploymentServiceImpl implements DeploymentService {
     private static final String BUSY = "busy";
 
     public DeployResponse deploy(Long projectId) {
-        // Dynamically build the domain: project-123.app.domain.com
+        // Dynamically build the domain: project-123.previews.codinggenie.in
         String domain = "project-" + projectId + "." + baseDomain;
 
         // Use default port 80 format logic for clean URLs, or explicit ports for local testing
