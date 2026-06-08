@@ -1,6 +1,7 @@
 package com.nod.backend.distributed_coding_genie.common_lib.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,7 @@ public class AuthUtil {
         .claim("userId", user.userId().toString())
         .claim("name", user.name())
         .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 100))
+        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 ))
         .signWith(getSecretKey())
         .compact();
   }
@@ -55,5 +56,36 @@ public class AuthUtil {
     }
     return userPrincipal.userId();
   }
+
+  // Create a signed refresh token (longer expiry, e.g. 30 days)
+public String generateRefreshToken(JwtUserPrincipal user) {
+    return Jwts.builder()
+        .subject(user.username())
+        .claim("userId", user.userId().toString())
+        .claim("type", "refresh")
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30)) // 30 days
+        .signWith(getSecretKey())
+        .compact();
+}
+
+// Validate a refresh token and return the principal
+public JwtUserPrincipal verifyRefreshToken(String token) {
+    Claims claims = Jwts.parser()
+        .verifyWith(getSecretKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
+
+    if (!"refresh".equals(claims.get("type", String.class))) {
+        throw new JwtException("Not a refresh token");
+    }
+
+    Long userId = Long.parseLong(claims.get("userId", String.class));
+    String name   = claims.get("name", String.class);
+    String username = claims.getSubject();
+    return new JwtUserPrincipal(userId, name, username, null, new ArrayList<>());
+}
+
 
 }

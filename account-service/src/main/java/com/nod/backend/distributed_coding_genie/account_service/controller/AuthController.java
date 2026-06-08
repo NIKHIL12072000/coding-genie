@@ -4,11 +4,18 @@ import com.nod.backend.distributed_coding_genie.account_service.dto.auth.AuthRes
 import com.nod.backend.distributed_coding_genie.account_service.dto.auth.LoginRequest;
 import com.nod.backend.distributed_coding_genie.account_service.dto.auth.SignupRequest;
 import com.nod.backend.distributed_coding_genie.account_service.service.AuthService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import java.time.Duration;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -17,22 +24,33 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     AuthService authService;
-    // UserService userService;
+
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest request) {
-        return ResponseEntity.ok(authService.signup(request));
+        AuthResponse authResponse=authService.signup(request);
+        String refreshToken = authResponse.refreshToken();
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
+                      .httpOnly(true)
+                      .sameSite("Strict")
+                      .path("/")
+                      .maxAge(Duration.ofDays(30))
+                      .build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authResponse);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+        AuthResponse authResponse=authService.login(request);
+        String refreshToken = authResponse.refreshToken();
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
+                      .httpOnly(true)
+                      .sameSite("Strict")
+                      .path("/")
+                      .maxAge(Duration.ofDays(30))
+                      .build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authResponse);
     }
-
-    // @GetMapping("/me")
-    // public ResponseEntity<UserProfileResponse> getProfile() {
-    // Long userId = 1L;
-    // return ResponseEntity.ok(userService.getProfile(userId));
-    // } TODO
+    
 
 }

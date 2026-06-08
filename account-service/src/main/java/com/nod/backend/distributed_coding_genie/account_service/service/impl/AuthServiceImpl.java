@@ -10,9 +10,11 @@ import com.nod.backend.distributed_coding_genie.account_service.service.AuthServ
 import com.nod.backend.distributed_coding_genie.common_lib.error.BadRequestException;
 import com.nod.backend.distributed_coding_genie.common_lib.security.AuthUtil;
 import com.nod.backend.distributed_coding_genie.common_lib.security.JwtUserPrincipal;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,18 +47,19 @@ public class AuthServiceImpl implements AuthService {
         JwtUserPrincipal jwtUserPrincipal = new JwtUserPrincipal(user.getId(), user.getName(),
                 user.getUsername(), null, new ArrayList<>());
 
-        String token = authUtil.generateAccessToken(jwtUserPrincipal);
-        return new AuthResponse(token, userMapper.toUserProfileResponse(jwtUserPrincipal));
+        String accessToken = authUtil.generateAccessToken(jwtUserPrincipal);
+        String refreshToken = authUtil.generateRefreshToken(jwtUserPrincipal);
+        return new AuthResponse(accessToken, refreshToken, userMapper.toUserProfileResponse(jwtUserPrincipal));
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password()));
-
         JwtUserPrincipal user = (JwtUserPrincipal) authentication.getPrincipal();
-        String token = authUtil.generateAccessToken(user);
-
-        return new AuthResponse(token, userMapper.toUserProfileResponse(user));
+        String accessToken = authUtil.generateAccessToken(user);
+        String refreshToken = authUtil.generateRefreshToken(user);
+        
+        return new AuthResponse(accessToken, refreshToken, userMapper.toUserProfileResponse(user));
     }
 }

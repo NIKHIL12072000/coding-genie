@@ -18,7 +18,7 @@ spec:
       containers:
         - name: account-service
           image: 12072000/coding-genie-account-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Always #check for a newer image before starting
           ports:
             - containerPort: 9050      
           env:

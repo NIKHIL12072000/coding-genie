@@ -8,8 +8,8 @@ metadata:
 spec:
   podSelector: {} # Applies to all pods in coding-genie
   policyTypes:
-    - Ingress
-  ingress:
+    - Ingress # policy only governs incoming traffic
+  ingress: #only pods in the same namespace can reach the selected pods.
     - from:
         - namespaceSelector:
             matchLabels:
