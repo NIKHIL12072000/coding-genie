@@ -54,24 +54,6 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authResponse);
     }
     
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(
-            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
 
-        if (!org.springframework.util.StringUtils.hasText(refreshToken)) {
-            return ResponseEntity.status(401).build();
-        }
-        AuthResponse authResponse = authService.refreshToken(refreshToken);
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", authResponse.refreshToken())
-                .httpOnly(true)
-                .sameSite("Strict")
-                .path("/")
-                .maxAge(Duration.ofDays(30))
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(authResponse);
-    }
 
 }
