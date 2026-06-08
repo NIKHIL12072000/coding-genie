@@ -34,15 +34,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             log.info("Incoming Request: {}", request.getRequestURI());
-            // Bypass authentication for actuator endpoints (e.g., health checks)
+            // Bypass authentication for actuator endpoints and public auth paths (login, token refresh)
             String uri = request.getRequestURI();
-            if (uri.contains("/actuator/")) {
+            if (uri.contains("/actuator/") || uri.startsWith("/auth/") || uri.contains("/login") || uri.contains("/refresh")) {
                 filterChain.doFilter(request, response);
                 return;
             }
             final String requestHeaderToken = request.getHeader("Authorization");
             if (requestHeaderToken == null || !requestHeaderToken.startsWith("Bearer ")) {
-                response.sendRedirect("/login");
+                // Respond with 401 Unauthorized instead of redirecting to /login
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
             String jwtToken = requestHeaderToken.split("Bearer ")[1];

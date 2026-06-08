@@ -4,6 +4,8 @@ import com.nod.backend.distributed_coding_genie.account_service.dto.auth.AuthRes
 import com.nod.backend.distributed_coding_genie.account_service.dto.auth.LoginRequest;
 import com.nod.backend.distributed_coding_genie.account_service.dto.auth.SignupRequest;
 import com.nod.backend.distributed_coding_genie.account_service.service.AuthService;
+import com.nod.backend.distributed_coding_genie.common_lib.security.JwtUserPrincipal;
+import com.nod.backend.distributed_coding_genie.common_lib.security.AuthUtil;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +54,21 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authResponse);
     }
     
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(
+            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
+
+        AuthResponse authResponse = authService.refreshToken(refreshToken);
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", authResponse.refreshToken())
+                .httpOnly(true)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(Duration.ofDays(30))
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(authResponse);
+    }
 
 }

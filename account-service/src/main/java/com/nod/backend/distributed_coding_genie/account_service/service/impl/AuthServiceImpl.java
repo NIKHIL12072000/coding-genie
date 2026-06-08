@@ -62,4 +62,18 @@ public class AuthServiceImpl implements AuthService {
         
         return new AuthResponse(accessToken, refreshToken, userMapper.toUserProfileResponse(user));
     }
+
+    @Override
+    public AuthResponse refreshToken(String refreshToken){
+        if (refreshToken == null) {
+            throw new BadRequestException("Missing refresh token");
+        }
+
+        JwtUserPrincipal user = authUtil.verifyRefreshToken(refreshToken);
+
+        String newAccessToken = authUtil.generateAccessToken(user);
+
+        return new AuthResponse(newAccessToken, refreshToken,
+                userMapper.toUserProfileResponse(user));
+    }
 }
