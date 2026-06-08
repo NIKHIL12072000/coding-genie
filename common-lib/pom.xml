@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.nod.backend.distributed_coding_genie</groupId>
 	<artifactId>common-lib</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name/>
 	<description/>
 	<url/>
